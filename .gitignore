@@ -1,0 +1,67 @@
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Editors / IDEs
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# Environment variables
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# Node / Next.js (client)
+# =========================
+node_modules/
+client/node_modules/
+client/.next/
+client/out/
+client/.turbo/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# Python / FastAPI (backend)
+# =========================
+backend/venv/
+backend/.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
+# =========================
+# FastAPI / Uvicorn
+# =========================
+*.log
+
+# =========================
+# Build / Dist
+# =========================
+dist/
+build/
+
+# =========================
+# Coverage / Testing
+# =========================
+coverage/
+htmlcov/
+
+# =========================
+# Misc
+# =========================
+*.sqlite3
