@@ -1,16 +1,17 @@
+import Link from "next/link";
 import React from "react";
 
 interface ModelCardProps {
+  id: string;
   name: string;
   desc: string;
   version: string;
   type: string;
-  onTry?: () => void;
 }
 
-const ModelCard: React.FC<ModelCardProps> = ({ name, desc, version, type, onTry }) => {
+const ModelCard: React.FC<ModelCardProps> = ({ id, name, desc, version, type }) => {
   return (
-    <div className="shadow-lg border border-neutral-800 rounded-lg p-6 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
+    <div className="group shadow-lg border border-neutral-800 rounded-lg p-6 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300">
       <div>
         <div className = "flex justify-between">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">{name}</h2>
@@ -23,14 +24,9 @@ const ModelCard: React.FC<ModelCardProps> = ({ name, desc, version, type, onTry 
       </div>
       <div className="mt-4 flex items-center justify-between">
         <span className="text-sm text-gray-500 dark:text-gray-400">v{version}</span>
-        {onTry && (
-          <button
-            onClick={onTry}
-            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-          >
+          <Link href = {`/models/${id}`} className = "flex items-center justify-center px-4 py-2 text-sm font-semibold">
             Try
-          </button>
-        )}
+          </Link>
       </div>
     </div>
   )
