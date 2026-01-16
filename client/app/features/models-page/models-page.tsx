@@ -1,8 +1,7 @@
-// client/app/features/models-page/models-page.tsx
 "use client"
 import ModelCard from "./components/modelCard";
 
-// Updated with unique IDs for routing
+
 const models = [
   {
     id: "image-classifier-01",
