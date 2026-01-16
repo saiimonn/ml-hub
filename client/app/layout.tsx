@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from 'next/font/local'
 import "./globals.css";
+import VidBG from "./components/video-bg";
 
 const satoshi = localFont({
   src: '../public/fonts/Satoshi-Regular.woff2',
@@ -22,7 +23,11 @@ export default function RootLayout({
       <body
         className={`${satoshi.className} antialiased`}
       >
-        {children}
+        <VidBG />
+        
+        <div className = "relative z-10">
+          {children}
+        </div>
       </body>
     </html>
   );

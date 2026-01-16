@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 interface ModelPageProps {
@@ -44,8 +45,12 @@ export default async function ModelPage({ params }: ModelPageProps) {
 
   return (
     <div className="max-w-5xl mx-auto p-8">
-      {/* Header */}
       <header className="mb-10">
+        <div className = "mb-2">
+          <Link href = "/models">
+            Back
+          </Link>
+        </div>
         <div className="flex items-center gap-3 mb-3">
           <span className="px-3 py-1 text-xs font-semibold rounded-full border">
             {model.type}
