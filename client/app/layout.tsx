@@ -22,9 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${satoshi.className} antialiased`}
-      >
-        <VidBG />
-        
+      > 
         <div className = "relative z-10">
           {children}
         </div>
