@@ -11,8 +11,6 @@ const Nav = () => {
       
       <div className = "flex space-x-4 px-4">
         <Link href="/models">Models</Link>
-        <Link href="/L1">Features</Link>
-        <Link href = "/L1">How it Works</Link>
       </div>
     </div>
   )

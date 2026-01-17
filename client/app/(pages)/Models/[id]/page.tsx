@@ -1,3 +1,4 @@
+import ColorInput from "@/app/features/models-page/components/color-input";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -7,7 +8,6 @@ interface ModelPageProps {
   }>;
 }
 
-// Temporary mock data
 const models = {
   "image-classifier-01": {
     name: "Image Classifier",
@@ -15,7 +15,7 @@ const models = {
       "Upload an image and let the model classify it into predefined categories.",
     type: "Computer Vision",
     version: "1.0",
-    inputType: "image",
+    inputType: "color",
   },
   "text-summarizer-01": {
     name: "Text Summarizer",
@@ -71,41 +71,51 @@ export default async function ModelPage({ params }: ModelPageProps) {
       </header>
 
       {/* Main Interaction Area */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Input Panel */}
-        <div className="lg:col-span-2 border rounded-xl p-6">
+      <section className="flex flex-col gap-8 h-[75vh]">
+        
+        {/* Output Panel — PRIMARY */}
+        <div className="border rounded-xl p-6 flex flex-col flex-1">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">
+              Output
+            </h2>
+            <span className="text-xs text-neutral-500 uppercase tracking-wide">
+              Live Preview
+            </span>
+          </div>
+      
+          {/* Visualization Area */}
+          <div className="flex-1 border rounded-lg bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center text-neutral-400">
+            {/* Future: <video /> + <canvas /> */}
+            Computer vision output will appear here
+          </div>
+        </div>
+      
+        {/* Input Panel — CONTROLS BELOW */}
+        <div className="border rounded-xl p-6">
           <h2 className="text-lg font-semibold mb-4">
-            Input
+            Controls
           </h2>
-
-          {/* Placeholder – switch based on model.inputType */}
+      
+          {/* Input switch */}
           {model.inputType === "image" && (
-            <div className="border-dashed border-2 rounded-lg p-10 text-center text-neutral-500">
-              Image upload area (drag & drop)
+            <div className="border-dashed border-2 rounded-lg p-6 text-center text-neutral-500">
+              Upload Image
             </div>
           )}
-
+      
           {model.inputType === "text" && (
             <textarea
               placeholder="Paste your text here..."
-              className="w-full min-h-50 border rounded-lg p-4 resize-none focus:outline-none focus:ring-2"
+              className="w-full min-h-30 border rounded-lg p-3 resize-none focus:outline-none focus:ring-2"
             />
           )}
-
+      
+          {model.inputType === "color" && <ColorInput />}
+      
           <button className="mt-6 px-6 py-2 font-semibold rounded-lg border hover:bg-neutral-100 dark:hover:bg-neutral-800 transition">
             Run Model
           </button>
-        </div>
-
-        {/* Output Panel */}
-        <div className="border rounded-xl p-6">
-          <h2 className="text-lg font-semibold mb-4">
-            Output
-          </h2>
-
-          <div className="text-sm text-neutral-500">
-            Model output will appear here after execution.
-          </div>
         </div>
       </section>
     </div>
