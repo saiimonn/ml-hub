@@ -1,3 +1,4 @@
+import Footer from "@/app/components/footer";
 import Link from "next/link";
 
 const LandingPage = () => {
@@ -92,6 +93,8 @@ const LandingPage = () => {
           ))}
         </div>
       </div>
+      
+      <Footer />
     </div>
   )
 }
