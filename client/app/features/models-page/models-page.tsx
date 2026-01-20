@@ -13,8 +13,8 @@ const models = [
     type: "CV",
   },
   {
-    id: "color-detector",
-    name: "Color Detector",
+    id: "color-analyzer",
+    name: "Color Analyzer",
     description: "Analyzes and extracts dominant colors from images using K-means clustering.",
     version: "1.0",
     type: "CV",

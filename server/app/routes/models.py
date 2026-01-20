@@ -13,8 +13,8 @@ def list_models():
         },
 
         {
-            "id": "color-detector",
-            "name": "Color Detector",
+            "id": "color-analyzer",
+            "name": "Color Analyzer",
             "description": "Detects and analyzes dominant colors in images using K-means clustering"
         }
     ]

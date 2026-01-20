@@ -19,8 +19,8 @@ const models = {
     version: "1.0",
     inputType: "image",
   },
-  "color-detector": {
-    name: "Color Detector",
+  "color-analyzer": {
+    name: "Color Analyzer",
     description:
       "Upload an image to detect and analyze the dominant colors present in it.",
     type: "Computer Vision",
@@ -59,7 +59,6 @@ export default function ModelPage({ params }: ModelPageProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
 
-  // Unwrap params
   useState(() => {
     params.then((p) => setModelId(p.id));
   });
@@ -107,7 +106,7 @@ export default function ModelPage({ params }: ModelPageProps) {
       }
 
       const data = await response.json();
-      setResult(data);
+      setResult(data.output ?? data);
     } catch (error) {
       console.error("Error running model:", error);
       alert("Error running model. Please try again.");
@@ -125,7 +124,7 @@ export default function ModelPage({ params }: ModelPageProps) {
       );
     }
 
-    if (modelId === "color-detector") {
+    if (modelId === "color-analyzer") {
       return (
         <div className="flex-1 space-y-4">
           {/* Color Bar Visualization */}
@@ -251,7 +250,7 @@ export default function ModelPage({ params }: ModelPageProps) {
       {/* Main Interaction Area */}
       <section className="flex flex-col gap-8">
         {/* Output Panel */}
-        <div className="border rounded-xl p-6 flex flex-col min-h-[400px]">
+        <div className="border rounded-xl p-6 flex flex-col min-h-100">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Output</h2>
             <span className="text-xs text-neutral-500 uppercase tracking-wide">
