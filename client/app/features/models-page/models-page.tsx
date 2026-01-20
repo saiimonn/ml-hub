@@ -6,25 +6,25 @@ import Nav from "@/app/components/nav";
 
 const models = [
   {
+    id: "edge-detector",
+    name: "Edge Detector",
+    description: "Detects edges in images using OpenCV Canny edge detection.",
+    version: "1.0",
+    type: "CV",
+  },
+  {
+    id: "color-detector",
+    name: "Color Detector",
+    description: "Analyzes and extracts dominant colors from images using K-means clustering.",
+    version: "1.0",
+    type: "CV",
+  },
+  {
     id: "image-classifier-01",
     name: "Image Classifier",
     description: "Classifies images into multiple categories using deep learning.",
     version: "1.0",
     type: "CV",
-  },
-  {
-    id: "text-summarizer-01",
-    name: "Text Summarizer",
-    description: "Generates a concise summary for any given text input accurately.",
-    version: "2.1",
-    type: "NLP",
-  },
-  {
-    id: "object-detector-01",
-    name: "Object Detector",
-    description: "Detects objects in images with bounding boxes and labels.",
-    version: "0.9",
-    type: "CV"
   },
 ];
 

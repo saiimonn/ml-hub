@@ -10,6 +10,12 @@ def list_models():
             "id": "edge-detector",
             "name": "Edge Detector",
             "description": "Simple OpenCV edge detection model"
+        },
+
+        {
+            "id": "color-detector",
+            "name": "Color Detector",
+            "description": "Detects and analyzes dominant colors in images using K-means clustering"
         }
     ]
 

@@ -1,7 +1,8 @@
-from app.ml.image_classifier import EdgeDetectionModel
+from app.ml.image_classifier import EdgeDetectionModel, ColorDetectionModel
 
 MODEL_REGISTRY = {
-    "edge-detector": EdgeDetectionModel
+    "edge-detector": EdgeDetectionModel,
+    "color-detector": ColorDetectionModel,
 }
 
 def get_model(model_id: str):
