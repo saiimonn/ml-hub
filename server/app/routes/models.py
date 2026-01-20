@@ -1,0 +1,18 @@
+from fastapi import APIRouter, UploadFile, File
+from app.services.model_service import run_inference
+
+router = APIRouter(prefix="/models", tags=["Models"])
+
+@router.get("/")
+def list_models():
+    return [
+        {
+            "id": "edge-detector",
+            "name": "Edge Detector",
+            "description": "Simple OpenCV edge detection model"
+        }
+    ]
+
+@router.post("/{model_id}/infer")
+async def infer(model_id: str, file: UploadFile = File(...)):
+    return await run_inference(model_id, file)
