@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import ColorAnalyzer from "@/app/features/models-page/outputs/color-analyzer-output";
+import EdgeDetector from "@/app/features/models-page/outputs/edge-detector-output";
 
 interface ModelPageProps {
   params: Promise<{
@@ -126,88 +128,13 @@ export default function ModelPage({ params }: ModelPageProps) {
 
     if (modelId === "color-analyzer") {
       return (
-        <div className="flex-1 space-y-4">
-          {/* Color Bar Visualization */}
-          {result.preview && (
-            <div className="border rounded-lg overflow-hidden">
-              <img
-                src={`data:image/png;base64,${result.preview}`}
-                alt="Color distribution"
-                className="w-full h-24 object-cover"
-              />
-            </div>
-          )}
-
-          {/* Color Details */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-sm">Detected Colors</h3>
-              <span className="text-xs text-neutral-500">
-                Total: {result.total_colors_detected}
-              </span>
-            </div>
-
-            {result.colors?.map((color: any, idx: number) => (
-              <div
-                key={idx}
-                className="flex items-center gap-3 p-3 border rounded-lg bg-white dark:bg-neutral-900"
-              >
-                <div
-                  className="w-12 h-12 rounded-md border shadow-sm"
-                  style={{ backgroundColor: color.hex }}
-                />
-                <div className="flex-1">
-                  <p className="font-mono font-bold text-sm">{color.hex}</p>
-                  <p className="text-xs text-neutral-500">
-                    RGB: {color.rgb.join(", ")}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-sm">{color.percentage}%</p>
-                  <p className="text-xs text-neutral-500">coverage</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Dominant Color */}
-          {result.dominant_color && (
-            <div className="border rounded-lg p-4 bg-neutral-50 dark:bg-neutral-900">
-              <p className="text-xs text-neutral-500 mb-2">Dominant Color</p>
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-16 h-16 rounded-lg border shadow-sm"
-                  style={{ backgroundColor: result.dominant_color }}
-                />
-                <p className="font-mono font-bold text-lg">
-                  {result.dominant_color}
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
+        <ColorAnalyzer result = {result} />
       );
     }
 
     if (modelId === "edge-detector") {
       return (
-        <div className="flex-1 space-y-4">
-          {result.preview && (
-            <div className="border rounded-lg overflow-hidden bg-white dark:bg-neutral-900">
-              <img
-                src={`data:image/png;base64,${result.preview}`}
-                alt="Edge detection result"
-                className="w-full h-auto"
-              />
-            </div>
-          )}
-          {result.edge_ratio && (
-            <div className="p-4 border rounded-lg bg-neutral-50 dark:bg-neutral-900">
-              <p className="text-sm text-neutral-500 mb-1">Edge Ratio</p>
-              <p className="text-2xl font-bold">{result.edge_ratio}</p>
-            </div>
-          )}
-        </div>
+        <EdgeDetector result = {result} />
       );
     }
 
