@@ -6,7 +6,7 @@ interface ModelCardProps {
   name: string;
   desc: string;
   version: string;
-  type: string;
+  type?: string;
 }
 
 const ModelCard: React.FC<ModelCardProps> = ({ id, name, desc, version, type }) => {
@@ -15,9 +15,11 @@ const ModelCard: React.FC<ModelCardProps> = ({ id, name, desc, version, type }) 
       <div>
         <div className = "flex justify-between">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">{name}</h2>
-          <div className = "py-1 px-4 border rounded-full">
-            <p className = "text-sm">{ type }</p>
-          </div>
+          {type && (
+            <div className = "py-1 px-4 border rounded-full">
+              <p className = "text-sm">{ type }</p>
+            </div>
+          )}
         </div>
 
         <p className="mt-2 text-gray-600 dark:text-gray-300">{desc}</p>

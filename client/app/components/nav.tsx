@@ -10,7 +10,7 @@ const Nav = () => {
       </div>
       
       <div className = "flex space-x-4 px-4">
-        <Link href="/models">Models</Link>
+        <Link href="/models">Analytical Models</Link>
         <Link href = "/trainable">Trainable Models</Link>
         <Link href = "https://github.com/saiimonn/ml-hub">Github</Link>
       </div>

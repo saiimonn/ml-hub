@@ -23,8 +23,8 @@ const TrainableModelsPage = () => {
         <Nav />
         
         <header className = "mb-12 text-center">
-          <h1 className = "text-4xl font-black tracking-tight text-neutral-900 dark:text-white mb-4">Model Hub</h1>
-          <p className = "text-neutral-500 dark:text-neutral-400 max-w-2xl mx-auto">            Explore and interact with state-of-the-art machine learning models directly in your browser.</p>
+          <h1 className = "text-4xl font-black tracking-tight text-neutral-900 dark:text-white mb-4">Trained Models Hub</h1>
+          <p className = "text-neutral-500 dark:text-neutral-400 max-w-2xl mx-auto">Explore and interact with state-of-the-art machine learning models directly in your browser.</p>
         </header>
         
         <div className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">

@@ -10,21 +10,12 @@ const models = [
     name: "Edge Detector",
     description: "Detects edges in images using OpenCV Canny edge detection.",
     version: "1.0",
-    type: "CV",
   },
   {
     id: "color-analyzer",
     name: "Color Analyzer",
     description: "Analyzes and extracts dominant colors from images using K-means clustering.",
     version: "1.0",
-    type: "CV",
-  },
-  {
-    id: "image-classifier-01",
-    name: "Image Classifier",
-    description: "Classifies images into multiple categories using deep learning.",
-    version: "1.0",
-    type: "CV",
   },
 ];
 
@@ -38,10 +29,10 @@ const ModelsPage = () => {
         
         <header className="mb-12 text-center">
           <h1 className="text-4xl font-black tracking-tight text-neutral-900 dark:text-white mb-4">
-            Model Hub
+            Analytical Models Hub
           </h1>
           <p className="text-neutral-500 dark:text-neutral-400 max-w-2xl mx-auto">
-            Explore and interact with state-of-the-art machine learning models directly in your browser.
+            Explore ready-to-use computer vision models that instantly analyze images and extract meaningful visual insights. No training required.
           </p>
         </header>
   
@@ -53,7 +44,6 @@ const ModelsPage = () => {
               name={model.name}
               desc={model.description}
               version={model.version}
-              type={model.type}
             />
           ))}
         </div>
