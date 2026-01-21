@@ -4,9 +4,18 @@ import Link from "next/link";
 const LandingPage = () => {
   
   const features = [
-    { title: "Real-time Detection", desc: "Process live video streams and detect objects using optimized computer vision models." },
-    { title: "Intelligent Classification", desc: "Classify visual data using trained machine learning models built with OpenCV and scikit-learn." },
-    { title: "Live AI Sessions", desc: "Stream data through WebSockets for low-latency, real-time AI inference." }
+    {
+      title: "Trainable Vision Models",
+      desc: "Create and train custom computer vision models using your own data for tasks like classification and detection."
+    },
+    {
+      title: "Instant Image Analysis",
+      desc: "Use ready-made analytical models to inspect images, extract visual properties, and compute insights such as color distribution and dominance."
+    },
+    {
+      title: "Real-Time AI Sessions",
+      desc: "Run both trainable and analytical models in live sessions with low-latency inference powered by WebSockets."
+    }
   ];
   
   const processes = [
