@@ -1,3 +1,4 @@
+import Image from "next/image";
 
 
 export default function EdgeDetector({ result }: { result: any }) {
@@ -5,9 +6,12 @@ export default function EdgeDetector({ result }: { result: any }) {
     <div className = "flex-1 space-y-4">
       {result.preview && (
         <div className = "border rounded-lg overflow-hidden bg-white dark:bg-neutral-900">
-          <img 
+          <Image 
           src={`data:image/png;base64,${result.preview}`}
           alt="Edge detection result"
+          width={800}
+          height={600}
+          unoptimized
           className="w-full h-auto"
           />
         </div>
