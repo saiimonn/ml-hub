@@ -1,8 +1,11 @@
-import TrainableModelsPage from "@/app/features/trained-page/trained-models-page";
+import ModelsPage from "@/app/features/models-page/models-page";
+import VidBG from "@/app/components/video-bg";
 
-
-export default function Trainable() {
-  return(
-    <TrainableModelsPage />
-  )
+export default function AnalyticalModelsPage() {
+  return (
+    <div className="relative min-h-screen">
+      <VidBG />
+      <ModelsPage filter="trainable" />
+    </div>
+  );
 }

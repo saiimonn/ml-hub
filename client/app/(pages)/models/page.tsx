@@ -1,9 +1,11 @@
 import ModelsPage from "@/app/features/models-page/models-page";
+import VidBG from "@/app/components/video-bg";
 
-const Models = () => {  
+export default function AnalyticalModelsPage() {
   return (
-    <ModelsPage />
-  )
+    <div className="relative min-h-screen">
+      <VidBG />
+      <ModelsPage/>
+    </div>
+  );
 }
-
-export default Models;

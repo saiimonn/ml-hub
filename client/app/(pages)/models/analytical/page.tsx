@@ -1,7 +1,11 @@
-import AnalyticalModelsPage from "@/app/features/models-page/models-page";
+import ModelsPage from "@/app/features/models-page/models-page";
+import VidBG from "@/app/components/video-bg";
 
-export default function Analytical() {
-  return(
-    <AnalyticalModelsPage />
-  )
+export default function AnalyticalModelsPage() {
+  return (
+    <div className="relative min-h-screen">
+      <VidBG />
+      <ModelsPage filter="analytical" />
+    </div>
+  );
 }
