@@ -16,7 +16,7 @@ const models = [
 
 const TrainableModelsPage = () => {
   return(
-    <div className = "max-w-7xl mx-auto p-8 h-screen">
+    <div className = "max-w-7xl mx-auto px-8 h-screen">
       <VidBG />
       
       <div className = "relative z-10">

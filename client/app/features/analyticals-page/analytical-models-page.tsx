@@ -1,8 +1,7 @@
 "use client"
 import VidBG from "@/app/components/video-bg";
-import ModelCard from "./components/modelCard";
+import ModelCard from "../models-page/components/modelCard";
 import Nav from "@/app/components/nav";
-
 
 const models = [
   {
@@ -19,7 +18,7 @@ const models = [
   },
 ];
 
-const ModelsPage = () => {
+const AnalyticalModelsPage = () => {
   return (
     <div className="max-w-7xl mx-auto px-8 h-screen">
       <VidBG />
@@ -52,4 +51,4 @@ const ModelsPage = () => {
   );
 };
 
-export default ModelsPage;
+export default AnalyticalModelsPage;

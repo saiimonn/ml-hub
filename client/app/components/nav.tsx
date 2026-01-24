@@ -7,10 +7,10 @@ const Nav = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   return (
-    <nav className="w-full flex justify-between items-center p-6 relative z-50">
+    <nav className="w-full flex justify-between items-center p-4 relative z-50">
       <div className="px-4">
         <Link href="/">
-          <h1 className="text-2xl font-black">
+          <h1 className="text-2xl font-black hover:text-purple-500/90 transition-colors ease-in">
             ML-Hub
           </h1>
         </Link>
@@ -43,14 +43,14 @@ const Nav = () => {
                 className="absolute -left-20 mt-1 w-56 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-xl p-2 flex flex-col gap-1"
               >
                 <Link 
-                  href="/models" 
+                  href="/models/analytical" 
                   className="px-4 py-3 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors flex flex-col"
                 >
                   <span className="text-neutral-900 dark:text-white">Analytical Models</span>
                   <span className="text-[10px] text-neutral-400 normal-case font-medium">Pre-trained computer vision & NLP</span>
                 </Link>
                 <Link 
-                  href="/trainable" 
+                  href="/models/trainable" 
                   className="px-4 py-3 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors flex flex-col"
                 >
                   <span className="text-neutral-900 dark:text-white">Trainable Models</span>
