@@ -5,7 +5,7 @@ export default function AnalyticalModelsPage() {
   return (
     <div className="relative min-h-screen">
       <VidBG />
-      <ModelsPage/>
+      <ModelsPage filter="trainable" />
     </div>
   );
 }

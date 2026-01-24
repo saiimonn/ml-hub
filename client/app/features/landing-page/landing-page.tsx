@@ -73,7 +73,7 @@ const LandingPage = () => {
           {features.map((feature, idx) => (
             <div
               key={idx}
-              className = {`flex flex-col gap-4 p-6 transition-colors ${idx == 2 ? 'border-none' : 'border-r'}`}
+              className = {`flex flex-col gap-4 p-6 transition-colors ${idx == 2 ? 'border-none xs:border-r' : 'border-r'}`}
             >
               <h3 className="text-2xl font-semibold tracking-tight">{feature.title}</h3>
               <p className="opacity-60 leading-relaxed">{feature.desc}</p>

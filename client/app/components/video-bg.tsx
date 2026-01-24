@@ -9,7 +9,7 @@ export default function VidBG() {
        playsInline
        className = "w-full h-full object-cover"
      >
-       <source src = "video/bg.mp4" type = "video/mp4"/>
+       <source src = "/video/bg.mp4" type = "video/mp4"/>
      </video>
      <div className = "absolute inset-0 bg-black/40 dark:bg-black/60" />
    </div>

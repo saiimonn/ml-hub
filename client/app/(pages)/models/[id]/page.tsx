@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -108,6 +107,7 @@ export default function ModelPage({ params }: ModelPageProps) {
       }
 
       const data = await response.json();
+      console.log("Response:", data);
       setResult(data.output ?? data);
     } catch (error) {
       console.error("Error running model:", error);

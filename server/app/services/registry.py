@@ -1,16 +1,49 @@
+from typing import List, Optional
 from app.ml.image_classifier import EdgeDetectionModel
 from app.ml.color_analyzer import ColorAnalyzingModel
+from app.schemas.model import ModelDetail
+
+MODEL_METADATA = {
+    "edge-detector": {
+        "id": "edge-detector",
+        "name": "Edge Detector",
+        "description": "Simple OpenCV edge detection model using Canny algorithms.",
+        "version": "1.0",
+        "type": "Computer Vision",
+        "category": "analytical",
+        "inputType": "image"
+    },
+    "color-analyzer": {
+        "id": "color-analyzer",
+        "name": "Color Analyzer",
+        "description": "Detects and analyzes dominant colors in images using K-means clustering.",
+        "version": "1.2",
+        "type": "CV/Analytics",
+        "category": "analytical",
+        "inputType": "color"
+    }
+}
 
 MODEL_REGISTRY = {
     "edge-detector": EdgeDetectionModel,
     "color-analyzer": ColorAnalyzingModel,
 }
 
+def list_all_models(category: Optional[str] = None) -> List[ModelDetail]:
+    models = [ModelDetail(**data) for data in MODEL_METADATA.values()]
+    if category:
+        return [m for m in models if m.category == category]
+    return models
+    
 def get_model(model_id: str):
     model_cls = MODEL_REGISTRY.get(model_id)
     if not model_cls:
         return None
-        
+    
     model = model_cls()
     model.load()
     return model
+
+def get_metadata_by_id(model_id: str) -> Optional[ModelDetail]:
+    data = MODEL_METADATA.get(model_id)
+    return ModelDetail(**data) if data else None
