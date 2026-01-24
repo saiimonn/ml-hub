@@ -49,7 +49,7 @@ const ModelsPage = ({ filter }: ModelsPageProps) => {
     },
     all: {
       title: "Model Hub",
-      desc: "Explore our full suite of AI and Machine Learning tools."
+      desc: "Explore every AI and Machine Learning tools/models offered."
     }
   };
 

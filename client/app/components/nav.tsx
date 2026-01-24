@@ -43,6 +43,12 @@ const Nav = () => {
                 className="absolute -left-20 mt-1 w-56 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-xl p-2 flex flex-col gap-1"
               >
                 <Link 
+                href = "/models/"
+                className = "px-4 py-3 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors flex flex-col"
+                >
+                  <span className="text-neutral-900 dark:text-white">All Models</span>
+                </Link>
+                <Link 
                   href="/models/analytical" 
                   className="px-4 py-3 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors flex flex-col"
                 >
