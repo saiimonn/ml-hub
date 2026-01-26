@@ -1,39 +1,14 @@
-"use client"
 import Nav from "@/app/components/nav";
 import ModelCard from "./components/modelCard";
-
-const allModels = [
-  {
-    id: "edge-detector",
-    name: "Edge Detector",
-    description: "Simple OpenCV edge detection model.",
-    version: "1.0",
-    type: "Computer Vision",
-    category: "analytical"
-  },
-  {
-    id: "color-analyzer",
-    name: "Color Analyzer",
-    description: "Detects and analyzes dominant colors in images using K-means clustering.",
-    version: "1.2",
-    type: "CV/Analytics",
-    category: "analytical"
-  },
-  {
-    id: "mnist-digit-classifier", //mock data
-    name: "Digit Classifier",
-    description: "Trainable neural network for recognizing handwritten digits.",
-    version: "2.0",
-    type: "Deep Learning",
-    category: "trainable"
-  }
-];
+import { GetModels } from "./api/models-page.api";
 
 interface ModelsPageProps {
   filter?: "analytical" | "trainable";
 }
 
-const ModelsPage = ({ filter }: ModelsPageProps) => {
+const ModelsPage = async({ filter }: ModelsPageProps) => {
+  const allModels = await GetModels();
+  
   const models = filter 
     ? allModels.filter(m => m.category === filter) 
     : allModels;
