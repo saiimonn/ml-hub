@@ -1,9 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ColorAnalyzer from "@/app/features/models-page/outputs/color-analyzer-output";
 import EdgeDetector from "@/app/features/models-page/outputs/edge-detector-output";
+import ColorInput from "@/app/features/models-page/components/color-input";
+import Image from "next/image";
+import { API_BASE_URL } from "@/app/config/apiConfig";
 
 interface ModelPageProps {
   params: Promise<{
@@ -11,68 +14,34 @@ interface ModelPageProps {
   }>;
 }
 
-const models = {
-  "edge-detector": {
-    name: "Edge Detector",
-    description:
-      "Upload an image and detect edges using OpenCV Canny edge detection algorithm.",
-    type: "Computer Vision",
-    version: "1.0",
-    inputType: "image",
-  },
-  "color-analyzer": {
-    name: "Color Analyzer",
-    description:
-      "Upload an image to detect and analyze the dominant colors present in it.",
-    type: "Computer Vision",
-    version: "1.0",
-    inputType: "image",
-  },
-  "image-classifier-01": {
-    name: "Image Classifier",
-    description:
-      "Upload an image and let the model classify it into predefined categories.",
-    type: "Computer Vision",
-    version: "1.0",
-    inputType: "color",
-  },
-  "text-summarizer-01": {
-    name: "Text Summarizer",
-    description: "Paste text and receive a concise, meaningful summary.",
-    type: "NLP",
-    version: "2.1",
-    inputType: "text",
-  },
-  "object-detector-01": {
-    name: "Object Detector",
-    description:
-      "Detects objects in images and returns bounding boxes with labels.",
-    type: "Computer Vision",
-    version: "0.9",
-    inputType: "image",
-  },
-};
-
 export default function ModelPage({ params }: ModelPageProps) {
-  const [modelId, setModelId] = useState<string>("");
+  const unwrappedParams = use(params);
+  const modelId = unwrappedParams.id;
+
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [model, setModel] = useState<any>(null);
+  const [loadingModel, setLoadingModel] = useState(true);
+  const [textInput, setTextInput] = useState("");
+  const [colorInput, setColorInput] = useState("#f97316");
 
-  useState(() => {
-    params.then((p) => setModelId(p.id));
-  });
-
-  const model = models[modelId as keyof typeof models];
-
-  if (modelId && !model) {
-    notFound();
-  }
-
-  if (!model) {
-    return <div>Loading...</div>;
-  }
+  useEffect(() => {
+    const fetchModel = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/models/${modelId}`);
+        if (!res.ok) throw new Error("Model not exist");
+        const data = await res.json();
+        setModel(data);
+      } catch {
+        notFound();
+      } finally {
+        setLoadingModel(false);
+      }
+    };
+    if (modelId) fetchModel();
+  }, [modelId]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -85,29 +54,34 @@ export default function ModelPage({ params }: ModelPageProps) {
   };
 
   const handleRunModel = async () => {
-    if (!selectedFile) return;
-
     setLoading(true);
     setResult(null);
 
     try {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
+      let response;
+      const endpoint = `${API_BASE_URL}/models/${modelId}/infer`;
 
-      const response = await fetch(
-        `http://localhost:8000/models/${modelId}/infer`,
-        {
+      if (model.inputType === "image") {
+        if (!selectedFile) return;
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        response = await fetch(endpoint, {
           method: "POST",
           body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Inference failed");
+        });
+      } else {
+        const payload = {
+          data: model.inputType === "color" ? colorInput : textInput,
+        };
+        response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
       }
 
+      if (!response.ok) throw new Error("Inference failed");
       const data = await response.json();
-      console.log("Response:", data);
       setResult(data.output ?? data);
     } catch (error) {
       console.error("Error running model:", error);
@@ -126,17 +100,8 @@ export default function ModelPage({ params }: ModelPageProps) {
       );
     }
 
-    if (modelId === "color-analyzer") {
-      return (
-        <ColorAnalyzer result = {result} />
-      );
-    }
-
-    if (modelId === "edge-detector") {
-      return (
-        <EdgeDetector result = {result} />
-      );
-    }
+    if (modelId === "color-analyzer") return <ColorAnalyzer result={result} />;
+    if (modelId === "edge-detector") return <EdgeDetector result={result} />;
 
     return (
       <div className="flex-1 border rounded-lg bg-neutral-50 dark:bg-neutral-900 p-4">
@@ -146,6 +111,8 @@ export default function ModelPage({ params }: ModelPageProps) {
       </div>
     );
   };
+
+  if (loadingModel) return <div className="p-8">Loading...</div>;
 
   return (
     <div className="max-w-5xl mx-auto p-8 min-h-screen">
@@ -174,7 +141,6 @@ export default function ModelPage({ params }: ModelPageProps) {
         </p>
       </header>
 
-      {/* Main Interaction Area */}
       <section className="flex flex-col gap-8">
         {/* Output Panel */}
         <div className="border rounded-xl p-6 flex flex-col min-h-100">
@@ -194,18 +160,19 @@ export default function ModelPage({ params }: ModelPageProps) {
 
           {model.inputType === "image" && (
             <div className="space-y-4">
-              {/* Image Preview */}
               {previewUrl && (
                 <div className="border rounded-lg overflow-hidden max-h-64">
-                  <img
+                  <Image
                     src={previewUrl}
                     alt="Selected image"
+                    width={800}
+                    height={600}
+                    unoptimized
                     className="w-full h-full object-contain"
                   />
                 </div>
               )}
 
-              {/* File Input */}
               <label className="border-dashed border-2 rounded-lg p-6 text-center text-neutral-500 hover:border-neutral-400 cursor-pointer block transition">
                 <input
                   type="file"
@@ -226,20 +193,20 @@ export default function ModelPage({ params }: ModelPageProps) {
 
           {model.inputType === "text" && (
             <textarea
+              value={textInput}
+              onChange={(e) => setTextInput(e.target.value)}
               placeholder="Paste your text here..."
               className="w-full min-h-30 border rounded-lg p-3 resize-none focus:outline-none focus:ring-2"
             />
           )}
 
           {model.inputType === "color" && (
-            <div className="text-neutral-500 text-sm">
-              Color input component (placeholder)
-            </div>
+            <ColorInput value={colorInput} onChange={setColorInput} />
           )}
 
           <button
             onClick={handleRunModel}
-            disabled={loading || !selectedFile}
+            disabled={loading || (model.inputType === "image" && !selectedFile)}
             className="mt-6 px-6 py-2 font-semibold rounded-lg border hover:bg-neutral-100 dark:hover:bg-neutral-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Processing..." : "Run Model"}

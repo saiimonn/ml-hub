@@ -20,7 +20,7 @@ MODEL_METADATA = {
         "version": "1.2",
         "type": "CV/Analytics",
         "category": "analytical",
-        "inputType": "color"
+        "inputType": "image"
     }
 }
 

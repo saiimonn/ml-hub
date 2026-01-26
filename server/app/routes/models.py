@@ -4,11 +4,11 @@ from app.services.registry import get_metadata_by_id, list_all_models
 from app.schemas.model import ModelDetail
 from app.services.model_service import run_inference
 
-router = APIRouter(prefix = "/models", tags = ["Models"])
+router = APIRouter(prefix = "/api/models", tags = ["Models"])
 
 @router.get("/", response_model = List[ModelDetail])
 async def get_models(category: Optional[str] = Query(None)):
-    return list_all_models
+    return list_all_models(category)
     
 @router.get("/{model_id}", response_model=ModelDetail)
 async def get_model_details(model_id: str):
