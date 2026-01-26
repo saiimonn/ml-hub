@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import ColorAnalyzer from "@/app/features/models-page/outputs/color-analyzer-output";
 import EdgeDetector from "@/app/features/models-page/outputs/edge-detector-output";
+import Image from "next/image";
 
 interface ModelPageProps {
   params: Promise<{
@@ -95,7 +96,7 @@ export default function ModelPage({ params }: ModelPageProps) {
       formData.append("file", selectedFile);
 
       const response = await fetch(
-        `http://localhost:8000/models/${modelId}/infer`,
+        `http://localhost:8000/api/models/${modelId}/infer`,
         {
           method: "POST",
           body: formData,
@@ -197,9 +198,12 @@ export default function ModelPage({ params }: ModelPageProps) {
               {/* Image Preview */}
               {previewUrl && (
                 <div className="border rounded-lg overflow-hidden max-h-64">
-                  <img
+                  <Image
                     src={previewUrl}
                     alt="Selected image"
+                    width={800}
+                    height={600}
+                    unoptimized
                     className="w-full h-full object-contain"
                   />
                 </div>
