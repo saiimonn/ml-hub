@@ -18,3 +18,4 @@ class ModelDetail(BaseModel):
     type: str
     category: str
     inputType: str
+    outputType: str

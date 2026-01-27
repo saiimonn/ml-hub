@@ -1,6 +1,7 @@
 from typing import List, Optional
 from app.ml.image_classifier import EdgeDetectionModel
 from app.ml.color_analyzer import ColorAnalyzingModel
+from app.ml.color_detector import ColorDetectorModel
 from app.schemas.model import ModelDetail
 
 MODEL_METADATA = {
@@ -11,7 +12,8 @@ MODEL_METADATA = {
         "version": "1.0",
         "type": "Computer Vision",
         "category": "analytical",
-        "inputType": "image"
+        "inputType": "image",
+        "outputType": "non-camera"
     },
     "color-analyzer": {
         "id": "color-analyzer",
@@ -20,13 +22,25 @@ MODEL_METADATA = {
         "version": "1.2",
         "type": "CV/Analytics",
         "category": "analytical",
-        "inputType": "image"
+        "inputType": "image",
+        "outputType": "non-camera"
+    }, 
+    "color-detector": {
+        "id": "color-detector",
+        "name": "Color Detector",
+        "description": "Real-time color detection and tracking. Identifies and highlights specific colors based on user input",
+        "version": "1.0",
+        "type": "Computer Vision",
+        "category": "analytical",
+        "inputType": "color",
+        "outputType": "camera"
     }
 }
 
 MODEL_REGISTRY = {
     "edge-detector": EdgeDetectionModel,
     "color-analyzer": ColorAnalyzingModel,
+    "color-detector": ColorDetectorModel,
 }
 
 def list_all_models(category: Optional[str] = None) -> List[ModelDetail]:
