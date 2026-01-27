@@ -64,3 +64,40 @@ async def run_inference(model_id: str, file: UploadFile, color_data: Optional[st
         # 5. Resource Cleanup (Release memory, close CV2 windows, etc.)
         if hasattr(model, 'cleanup'):
             model.cleanup()
+            
+async def run_color_detection(model_id: str, file: UploadFile, color_hex: str):
+    metadata = get_metadata_by_id(model_id)
+    model = get_model(model_id)
+    
+    if not model or not metadata:
+        raise HTTPException(status_code=404, detail=f"Model '{model_id}' not found in registry")
+        
+    try:
+        image = await read_image(file)
+        
+        if not color_hex.startswith('#') or len(color_hex) != 7:
+            raise ValueError(f"Invalid color format: {color_hex}. Expected format: #RRGGBB")
+        
+        start_time = time.perf_counter()
+        
+        result = model.predict(image, color_hex=color_hex)
+        
+        end_time = time.perf_counter()
+        duration_ms = (end_time - start_time) * 1000
+        
+        return InferenceResponse(
+            model_id = model_id,
+            output = result,
+            meta = InferenceMeta(
+                inference_time_ms = round(duration_ms, 2),
+                model_version = metadata.version
+            )
+        )
+        
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Color detection failed for { model_id }: { str(e) }")
+    finally:
+        if hasattr(model, 'cleanup'):
+            model.cleanup()

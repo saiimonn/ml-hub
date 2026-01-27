@@ -1,7 +1,7 @@
 from typing import List, Optional
 from app.ml.image_classifier import EdgeDetectionModel
 from app.ml.color_analyzer import ColorAnalyzingModel
-from app.ml.color_detector import ColorDetectionModel
+from app.ml.color_detector import ColorDetectorModel
 from app.schemas.model import ModelDetail
 
 MODEL_METADATA = {
@@ -40,7 +40,7 @@ MODEL_METADATA = {
 MODEL_REGISTRY = {
     "edge-detector": EdgeDetectionModel,
     "color-analyzer": ColorAnalyzingModel,
-    "color-detector": ColorDetectionModel,
+    "color-detector": ColorDetectorModel,
 }
 
 def list_all_models(category: Optional[str] = None) -> List[ModelDetail]:

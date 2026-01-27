@@ -2,108 +2,127 @@ import base64
 import cv2
 import numpy as np
 from app.ml.base import BaseCVModel
+from PIL import Image
 
-class ColorDetectionModel(BaseCVModel):
-    
-    def __init__(self, tolerance=30):
-        self.tolerance = tolerance
-        self.target_color_bgr = None
-    
+class ColorDetectorModel(BaseCVModel):
+    def __init__(self):
+        self.color_bgr = None
+        
     def load(self):
+        """Initialize the model (no pre-trained weights needed)"""
         pass
     
-    def hex_to_bgr(self, hex_color: str) -> np.ndarray:
-
+    def _hex_to_bgr(self, hex_color: str) -> tuple:
+        """Convert hex color to BGR tuple for OpenCV"""
+        # Remove '#' if present
         hex_color = hex_color.lstrip('#')
-        r, g, b = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
-        return np.array([b, g, r], dtype=np.uint8)
+        
+        # Convert hex to RGB
+        r = int(hex_color[0:2], 16)
+        g = int(hex_color[2:4], 16)
+        b = int(hex_color[4:6], 16)
+        
+        # Return as BGR for OpenCV
+        return (b, g, r)
     
-    def predict(self, image: np.ndarray, color_hex: str) -> dict:
+    def _get_limits(self, color_bgr: tuple) -> tuple:
+        """
+        Calculate HSV lower and upper limits for color detection.
+        Handles red hue wrap-around.
+        """
+        c = np.uint8([[color_bgr]])  # BGR values
+        hsvC = cv2.cvtColor(c, cv2.COLOR_BGR2HSV)
+        hue = hsvC[0][0][0]  # Get the hue value
+        
+        # Handle red hue wrap-around
+        if hue >= 165:  # Upper limit for divided red hue
+            lowerLimit = np.array([hue - 10, 100, 100], dtype=np.uint8)
+            upperLimit = np.array([180, 255, 255], dtype=np.uint8)
+        elif hue <= 15:  # Lower limit for divided red hue
+            lowerLimit = np.array([0, 100, 100], dtype=np.uint8)
+            upperLimit = np.array([hue + 10, 255, 255], dtype=np.uint8)
+        else:
+            lowerLimit = np.array([hue - 10, 100, 100], dtype=np.uint8)
+            upperLimit = np.array([hue + 10, 255, 255], dtype=np.uint8)
+        
+        return lowerLimit, upperLimit
+    
+    def predict(self, image: np.ndarray, color_hex: str = "#ff0000") -> dict:
+        """
+        Detect objects of specified color in the image.
+        
+        Args:
+            image: Input image as numpy array (BGR format from OpenCV)
+            color_hex: Hex color code to detect (e.g., "#ff0000" for red)
+        
+        Returns:
+            dict containing detection results and annotated image
+        """
         # Convert hex color to BGR
-        self.target_color_bgr = self.hex_to_bgr(color_hex)
+        color_bgr = self._hex_to_bgr(color_hex)
         
-        # Create color mask bounds
-        lower_bound = np.clip(self.target_color_bgr - self.tolerance, 0, 255)
-        upper_bound = np.clip(self.target_color_bgr + self.tolerance, 0, 255)
+        # Convert image to HSV color space
+        hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         
-        # Create mask for the target color
-        mask = cv2.inRange(image, lower_bound, upper_bound)
+        # Get color limits
+        lower_limit, upper_limit = self._get_limits(color_bgr)
         
-        # Apply morphological operations to reduce noise
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
-        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+        # Create mask - white where color is detected, black elsewhere
+        mask = cv2.inRange(hsv_image, lower_limit, upper_limit)
         
-        # Find contours of detected color regions
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        # Find bounding box of detected color
+        mask_pil = Image.fromarray(mask)
+        bbox = mask_pil.getbbox()
         
-        # Create visualization with detected regions highlighted
-        result_image = image.copy()
+        # Create annotated image
+        annotated_image = image.copy()
+        detection_found = False
+        bbox_coords = None
         
-        # Draw contours and bounding boxes
-        detected_regions = []
-        for contour in contours:
-            area = cv2.contourArea(contour)
-            if area > 100:  # Filter small noise
-                # Draw contour in green
-                cv2.drawContours(result_image, [contour], -1, (0, 255, 0), 2)
-                
-                # Get bounding rectangle
-                x, y, w, h = cv2.boundingRect(contour)
-                cv2.rectangle(result_image, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                
-                # Add label with area
-                label = f"{int(area)}px"
-                cv2.putText(result_image, label, (x, y - 5), 
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
-                
-                detected_regions.append({
-                    "x": int(x),
-                    "y": int(y),
-                    "width": int(w),
-                    "height": int(h),
-                    "area": int(area)
-                })
+        if bbox is not None:
+            detection_found = True
+            x1, y1, x2, y2 = bbox
+            bbox_coords = {"x1": int(x1), "y1": int(y1), "x2": int(x2), "y2": int(y2)}
+            
+            # Draw rectangle on the image
+            cv2.rectangle(annotated_image, (x1, y1), (x2, y2), (0, 255, 0), 3)
+            
+            # Add label with color
+            label = f"Color: {color_hex.upper()}"
+            cv2.putText(
+                annotated_image, 
+                label, 
+                (x1, y1 - 10), 
+                cv2.FONT_HERSHEY_SIMPLEX, 
+                0.6, 
+                (0, 255, 0), 
+                2
+            )
         
-        # Create a colored overlay showing detection mask
-        colored_mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
-        overlay = cv2.addWeighted(result_image, 0.7, colored_mask, 0.3, 0)
+        # Encode annotated image to base64
+        _, buffer = cv2.imencode(".png", annotated_image)
+        annotated_encoded = base64.b64encode(buffer).decode("utf-8")
         
-        # Calculate detection statistics
-        total_pixels = image.shape[0] * image.shape[1]
-        detected_pixels = np.sum(mask > 0)
-        coverage_percentage = (detected_pixels / total_pixels) * 100
+        # Encode mask for debugging
+        _, mask_buffer = cv2.imencode(".png", mask)
+        mask_encoded = base64.b64encode(mask_buffer).decode("utf-8")
         
-        # Encode result image with overlay
-        _, buffer = cv2.imencode(".png", overlay)
-        encoded_result = base64.b64encode(buffer).decode("utf-8")
-        
-        # Encode original with contours only
-        _, buffer_contours = cv2.imencode(".png", result_image)
-        encoded_contours = base64.b64encode(buffer_contours).decode("utf-8")
-        
-        # Encode mask
-        _, buffer_mask = cv2.imencode(".png", mask)
-        encoded_mask = base64.b64encode(buffer_mask).decode("utf-8")
+        # Calculate detection coverage
+        total_pixels = mask.size
+        detected_pixels = int(np.sum(mask > 0))
+        coverage_percentage = round((detected_pixels / total_pixels) * 100, 2)
         
         return {
-            "preview": encoded_result,
-            "contours_only": encoded_contours,
-            "mask": encoded_mask,
-            "target_color": {
-                "hex": color_hex,
-                "rgb": [int(self.target_color_bgr[2]), 
-                       int(self.target_color_bgr[1]), 
-                       int(self.target_color_bgr[0])]
-            },
-            "detection_stats": {
-                "regions_found": len(detected_regions),
-                "coverage_percentage": round(coverage_percentage, 2),
-                "detected_pixels": int(detected_pixels),
-                "total_pixels": int(total_pixels)
-            },
-            "regions": sorted(detected_regions, key=lambda x: x['area'], reverse=True)[:10]
+            "detection_found": detection_found,
+            "color_detected": color_hex.upper(),
+            "color_bgr": color_bgr,
+            "bounding_box": bbox_coords,
+            "coverage_percentage": coverage_percentage,
+            "detected_pixels": detected_pixels,
+            "annotated_image": annotated_encoded,
+            "mask": mask_encoded
         }
     
     def cleanup(self):
+        """Clean up resources"""
         pass
