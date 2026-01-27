@@ -7,4 +7,5 @@ export interface Model {
   version: string
   category: string
   inputType: string
+  outputType: string
 } 

@@ -1,10 +1,11 @@
 import time
 from fastapi import UploadFile, HTTPException
+from typing import Optional
 from app.services.registry import get_model, get_metadata_by_id
 from app.utils.image import read_image
 from app.schemas.model import InferenceResponse, InferenceMeta
 
-async def run_inference(model_id: str, file: UploadFile):
+async def run_inference(model_id: str, file: UploadFile, color_data: Optional[str] = None):
     """
     Orchestrates the lifecycle of a model inference request:
     1. Validates existence of model and metadata.
@@ -16,7 +17,7 @@ async def run_inference(model_id: str, file: UploadFile):
     
     # 1. Fetch Metadata and Model Class Reference
     metadata = get_metadata_by_id(model_id)
-    model = get_model(model_id) # Instantiates the class from MODEL_REGISTRY
+    model = get_model(model_id)
 
     if not model or not metadata:
         raise HTTPException(
@@ -26,14 +27,18 @@ async def run_inference(model_id: str, file: UploadFile):
 
     try:
         # 2. Prepare Input (Converts UploadFile to NumPy array/format)
-        # Assumes model.inputType == "image" based on current route logic
         image = await read_image(file)
         
         # 3. Benchmark and Run Inference
         start_time = time.perf_counter()
         
-        # model.predict is the core ML logic in your ML codes
-        result = model.predict(image) 
+        # Handle different input types
+        if model_id == "color-detector" and color_data:
+            # Color detector needs both image and color input
+            result = model.predict(image, color_hex=color_data)
+        else:
+            # Standard image-only models
+            result = model.predict(image)
         
         end_time = time.perf_counter()
         duration_ms = (end_time - start_time) * 1000

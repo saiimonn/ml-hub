@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Query, UploadFile, File
+from fastapi import APIRouter, HTTPException, Query, UploadFile, File, Form
 from typing import Optional, List
 from app.services.registry import get_metadata_by_id, list_all_models
 from app.schemas.model import ModelDetail
@@ -18,5 +18,9 @@ async def get_model_details(model_id: str):
     return metadata
     
 @router.post("/{model_id}/infer")
-async def infer(model_id: str, file: UploadFile = File(...)):
-    return await run_inference(model_id, file)
+async def infer(
+    model_id: str, 
+    file: UploadFile = File(...),
+    color_data: Optional[str] = Form(None)    
+):
+    return await run_inference(model_id, file, color_data=color_data)
