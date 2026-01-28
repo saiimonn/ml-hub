@@ -205,14 +205,6 @@ export default function ModelPage({ params }: ModelPageProps) {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Output</h2>
             <div className="flex items-center gap-3">
-              {model.outputType === "camera" && (
-                <button
-                  onClick={() => setUseCameraMode(!useCameraMode)}
-                  className="px-3 py-1 text-xs font-semibold rounded-lg border hover:bg-neutral-100 transition"
-                >
-                  {useCameraMode ? "Switch to Image" : "Switch to Camera"}
-                </button>
-              )}
               <span className="text-xs text-neutral-500 uppercase tracking-wide">
                 {useCameraMode ? "Live Camera" : "Live Preview"}
               </span>
