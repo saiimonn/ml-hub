@@ -9,7 +9,8 @@ interface ColorDetectorProps {
 }
 
 export default function ColorDetector({ result, colorInput, onCameraFrame }: ColorDetectorProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null); 
+  const canvasRef = useRef<HTMLCanvasElement>(null); 
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -18,12 +19,11 @@ export default function ColorDetector({ result, colorInput, onCameraFrame }: Col
   const isProcessingRef = useRef(false);
 
   const captureFrame = useCallback(() => {
-    if (!canvasRef.current || !onCameraFrame || !streamRef.current) return;
+    if (!canvasRef.current || !onCameraFrame || !videoRef.current) return;
     if (isProcessingRef.current) return;
 
     const now = Date.now();
     if (now - lastCaptureRef.current < 100) return; // ~10 FPS
-
     lastCaptureRef.current = now;
     isProcessingRef.current = true;
 
@@ -34,34 +34,30 @@ export default function ColorDetector({ result, colorInput, onCameraFrame }: Col
       return;
     }
 
-    const videoTrack = streamRef.current.getVideoTracks()[0];
-    const imageCapture = new ImageCapture(videoTrack);
-    imageCapture.grabFrame().then((bitmap) => {
-      const scale = 0.75;
-      canvas.width = bitmap.width * scale;
-      canvas.height = bitmap.height * scale;
-      ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-
-      canvas.toBlob((blob) => {
-        if (blob) {
-          onCameraFrame(new File([blob], "frame.jpg", { type: "image/jpeg" }));
-        }
-        setTimeout(() => {
-          isProcessingRef.current = false;
-        }, 50);
-      }, "image/jpeg", 0.75);
-    }).catch((err) => {
-      console.error("Frame capture error:", err);
+    const video = videoRef.current;
+    if (video.readyState < 2) { 
       isProcessingRef.current = false;
-    });
-  }, [onCameraFrame]);
+      return;
+    }
 
+    const scale = 0.75;
+    canvas.width = video.videoWidth * scale;
+    canvas.height = video.videoHeight * scale;
+
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob((blob) => {
+      if (blob) {
+        onCameraFrame(new File([blob], "frame.jpg", { type: "image/jpeg" }));
+      }
+      setTimeout(() => (isProcessingRef.current = false), 50);
+    }, "image/jpeg", 0.75);
+  }, [onCameraFrame]);
 
   const renderLoop = useCallback(() => {
     captureFrame();
     animationFrameRef.current = requestAnimationFrame(renderLoop);
   }, [captureFrame]);
-
 
   const startCamera = async () => {
     try {
@@ -73,6 +69,11 @@ export default function ColorDetector({ result, colorInput, onCameraFrame }: Col
           frameRate: { ideal: 30 },
         },
       });
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
 
       streamRef.current = stream;
       setIsCameraActive(true);
@@ -129,18 +130,14 @@ export default function ColorDetector({ result, colorInput, onCameraFrame }: Col
           </div>
         )}
 
-        {/* Canvas rendering live camera (HIDDEN)*/}
-        <div className="relative border rounded-lg overflow-hidden bg-black aspect-video hidden">
-          <canvas ref={canvasRef} className="w-full h-full object-contain hidden" />
-          {!isCameraActive && (
-            <div className="absolute inset-0 flex items-center justify-center text-neutral-400">
-              Camera not active
-            </div>
-          )}
-        </div>
+        {/* Hidden video element as source for canvas */}
+        <video ref={videoRef} className="hidden" autoPlay playsInline muted />
+
+        {/* Canvas (HIDDEN) */}
+        <canvas ref={canvasRef} className="hidden" />
 
         {/* Detection Result */}
-        {(result && isCameraActive) ? (
+        {result && isCameraActive ? (
           <div
             className={`p-4 mt-4 border rounded-lg ${
               result.detection_found ? "bg-green-50 border-green-500" : "bg-red-50 border-red-500"
@@ -176,8 +173,8 @@ export default function ColorDetector({ result, colorInput, onCameraFrame }: Col
             )}
           </div>
         ) : (
-          <div className = "w-full h-auto">
-            <h1 className = "text-lg font-semibold text-black text-center">Camera not active</h1>
+          <div className="w-full h-auto">
+            <h1 className="text-lg font-semibold text-black text-center">Camera not active</h1>
           </div>
         )}
       </div>
