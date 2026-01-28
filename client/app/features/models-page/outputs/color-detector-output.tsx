@@ -36,50 +36,45 @@ export default function ColorDetector({
     if (!ctx || video.readyState !== video.HAVE_ENOUGH_DATA) return;
     
     const now = Date.now();
-    // Throttle to max 2 captures per second (500ms between captures)
-    if (now - lastCaptureTimeRef.current < 500) return;
+    if (now - lastCaptureTimeRef.current < 100) return;
     
     lastCaptureTimeRef.current = now;
     isProcessingRef.current = true;
     
-    // Use lower resolution for faster processing
-    const scale = 0.5; // Process at 50% resolution
+    const scale = 0.75; 
     canvas.width = video.videoWidth * scale;
     canvas.height = video.videoHeight * scale;
     
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     
-    // Use lower quality JPEG for faster encoding
     canvas.toBlob(
       (blob) => {
         if (blob) {
           const file = new File([blob], "camera-frame.jpg", { type: "image/jpeg" });
           onCameraFrame(file);
         }
-        // Release processing lock after a short delay
         setTimeout(() => {
           isProcessingRef.current = false;
-        }, 100);
+        }, 50);
       },
       "image/jpeg",
-      0.6 // Lower quality for faster encoding
+      0.75 // Lower quality for faster encoding
     );
   }, [onCameraFrame]);
 
-  // Animation loop for frame capture
   const processFrames = useCallback(() => {
     captureFrame();
     animationFrameRef.current = requestAnimationFrame(processFrames);
   }, [captureFrame]);
 
-  // Start camera
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { 
           facingMode: "user",
-          width: { ideal: 640 }, // Reduced resolution for better performance
-          height: { ideal: 480 }
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+          frameRate: { ideal: 60, min: 30 }
         }
       });
       
@@ -89,10 +84,8 @@ export default function ColorDetector({
         setIsCameraActive(true);
         setCameraError(null);
         
-        // Wait for video to be ready before starting processing
         videoRef.current.onloadedmetadata = () => {
           videoRef.current?.play();
-          // Start animation loop
           animationFrameRef.current = requestAnimationFrame(processFrames);
         };
       }
@@ -102,7 +95,6 @@ export default function ColorDetector({
     }
   };
 
-  // Stop camera
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
@@ -116,7 +108,6 @@ export default function ColorDetector({
     setIsCameraActive(false);
   }, []);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       stopCamera();
