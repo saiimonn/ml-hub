@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 
 interface ColorDetectorProps {
@@ -20,7 +20,57 @@ export default function ColorDetector({
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const lastCaptureTimeRef = useRef<number>(0);
+  const isProcessingRef = useRef<boolean>(false);
+
+  // Capture frame with throttling and processing lock
+  const captureFrame = useCallback(() => {
+    if (!videoRef.current || !canvasRef.current || !onCameraFrame) return;
+    if (isProcessingRef.current) return; // Skip if still processing previous frame
+    
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    
+    if (!ctx || video.readyState !== video.HAVE_ENOUGH_DATA) return;
+    
+    const now = Date.now();
+    // Throttle to max 2 captures per second (500ms between captures)
+    if (now - lastCaptureTimeRef.current < 500) return;
+    
+    lastCaptureTimeRef.current = now;
+    isProcessingRef.current = true;
+    
+    // Use lower resolution for faster processing
+    const scale = 0.5; // Process at 50% resolution
+    canvas.width = video.videoWidth * scale;
+    canvas.height = video.videoHeight * scale;
+    
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // Use lower quality JPEG for faster encoding
+    canvas.toBlob(
+      (blob) => {
+        if (blob) {
+          const file = new File([blob], "camera-frame.jpg", { type: "image/jpeg" });
+          onCameraFrame(file);
+        }
+        // Release processing lock after a short delay
+        setTimeout(() => {
+          isProcessingRef.current = false;
+        }, 100);
+      },
+      "image/jpeg",
+      0.6 // Lower quality for faster encoding
+    );
+  }, [onCameraFrame]);
+
+  // Animation loop for frame capture
+  const processFrames = useCallback(() => {
+    captureFrame();
+    animationFrameRef.current = requestAnimationFrame(processFrames);
+  }, [captureFrame]);
 
   // Start camera
   const startCamera = async () => {
@@ -28,8 +78,8 @@ export default function ColorDetector({
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { 
           facingMode: "user",
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
+          width: { ideal: 640 }, // Reduced resolution for better performance
+          height: { ideal: 480 }
         }
       });
       
@@ -39,10 +89,12 @@ export default function ColorDetector({
         setIsCameraActive(true);
         setCameraError(null);
         
-        // Start sending frames every 500ms
-        intervalRef.current = setInterval(() => {
-          captureFrame();
-        }, 500);
+        // Wait for video to be ready before starting processing
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current?.play();
+          // Start animation loop
+          animationFrameRef.current = requestAnimationFrame(processFrames);
+        };
       }
     } catch (error) {
       console.error("Error accessing camera:", error);
@@ -51,46 +103,25 @@ export default function ColorDetector({
   };
 
   // Stop camera
-  const stopCamera = () => {
+  const stopCamera = useCallback(() => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
     }
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
     }
+    isProcessingRef.current = false;
     setIsCameraActive(false);
-  };
-
-  // Capture frame and send to parent
-  const captureFrame = () => {
-    if (videoRef.current && canvasRef.current && onCameraFrame) {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
-      
-      if (ctx && video.readyState === video.HAVE_ENOUGH_DATA) {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        ctx.drawImage(video, 0, 0);
-        
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const file = new File([blob], "camera-frame.jpg", { type: "image/jpeg" });
-            onCameraFrame(file);
-          }
-        }, "image/jpeg", 0.8);
-      }
-    }
-  };
+  }, []);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       stopCamera();
     };
-  }, []);
+  }, [stopCamera]);
 
   // If camera mode is enabled
   if (isCamera) {
@@ -172,6 +203,7 @@ export default function ColorDetector({
                   height={600}
                   unoptimized
                   className="w-full h-auto"
+                  priority
                 />
               </div>
             )}
