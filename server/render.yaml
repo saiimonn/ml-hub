@@ -1,7 +1,7 @@
 services:
   - type: web
     name: ml-hub-api
-    env: python
+    runtime: python  # Changed from 'env: python'
     region: oregon
     plan: free
     buildCommand: pip install -r requirements.txt
