@@ -33,15 +33,20 @@ export default function ModelPage({ params }: ModelPageProps) {
     const fetchModel = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/models/${modelId}`);
-        if (!res.ok) throw new Error("Model not exist");
+        if (!res.ok) {
+          console.error(`Failed to fetch model: ${res.status} ${res.statusText}`);
+          throw new Error("Model not exist");
+        }
         const data = await res.json();
+        console.log("Fetched model:", data);
         setModel(data);
         
         // Auto-enable camera mode for camera-output models
         if (data.outputType === "camera") {
           setUseCameraMode(true);
         }
-      } catch {
+      } catch (error) {
+        console.error("Error fetching model:", error);
         notFound();
       } finally {
         setLoadingModel(false);
@@ -164,7 +169,7 @@ export default function ModelPage({ params }: ModelPageProps) {
     );
   };
 
-  if (loadingModel) return <div className="p-8">Loading...</div>;
+  if (loadingModel || !model) return <div className="p-8">Loading...</div>;
 
   return (
     <div className="max-w-5xl mx-auto p-8 min-h-screen">
