@@ -2,11 +2,12 @@
 
 A full-stack machine learning application that provides interactive access to various ML models including color analysis, edge detection, and color detection. The platform features a modern web interface with real-time camera input support for compatible models.
 
-## 🌐 Live Demo
+## Live Demo
 
-- **Frontend:** https://mlearning-hub.vercel.app
+- **Frontend:** https://mlearning-hub.vercel.app \
+**Disclaimer:** navigating between pages and using the models will be slow due to render.com delaying requests.
 
-## 🏗️ Architecture
+## Architecture
 
 ### Frontend
 - **Framework:** Next.js 16 with TypeScript
@@ -20,7 +21,7 @@ A full-stack machine learning application that provides interactive access to va
 - **Models:** Color Analyzer, Edge Detector, Color Detector, Image Classifier
 - **Libraries:** OpenCV, Scikit-learn, NumPy, Pillow
 
-## 🚀 Local Development Setup
+## Local Development Setup
 
 ### Prerequisites
 - Node.js 16+ and npm
@@ -80,55 +81,7 @@ A full-stack machine learning application that provides interactive access to va
    ```
    The frontend will run on `http://localhost:3000`
 
-## 📝 Environment Variables
-
-### Server (.env)
-```env
-ALLOWED_ORIGINS=http://localhost:3000, https://mlearning-hub.vercel.app, https://mlearning-a6pxl865c-saiimonns-projects.vercel.app
-```
-
-### Client (.env.local)
-```env
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8000/api
-```
-
-## 🎯 Available Models
-
-### Color Analyzer
-- **Input Type:** Image
-- **Output:** Color distribution analysis and dominant colors
-- **Use Case:** Analyze color composition of images
-
-### Edge Detector
-- **Input Type:** Image
-- **Output:** Edge-detected image
-- **Use Case:** Computer vision preprocessing
-
-### Color Detector
-- **Input Type:** Image + Color
-- **Output:** Color detection with live camera support
-- **Use Case:** Real-time color detection in video streams
-
-### Image Classifier
-- **Input Type:** Image
-- **Output:** Classification results
-- **Use Case:** General image classification tasks
-
-## 🔧 Building for Production
-
-### Frontend Build
-```bash
-cd client
-npm run build
-npm start
-```
-
-### Backend Deployment
-The backend is configured for Render deployment via `render.yaml`:
-- Build command: `pip install -r requirements.txt`
-- Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-
-## 📂 Project Structure
+## Project Structure
 
 ```
 ml-hub/
@@ -150,8 +103,7 @@ ml-hub/
 └── README.md
 ```
 
-
-## 📦 Technologies Used
+## Technologies Used
 
 - Next.js 16
 - TypeScript
@@ -161,11 +113,3 @@ ml-hub/
 - Scikit-learn
 - NumPy
 - Pydantic
-
-## 📄 License
-
-MIT License
-
-## 👨‍💻 Author
-
-Simon Gabriel
