@@ -137,7 +137,7 @@ export default function ModelPage({ params }: ModelPageProps) {
   const renderOutput = () => {
     if (!result && !useCameraMode) {
       return (
-        <div className="flex-1 border rounded-lg bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center text-neutral-400 min-h-[400px]">
+        <div className="flex-1 border rounded-lg bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center text-neutral-400 min-h-100">
           {loading ? "Processing..." : "Results will appear here after running the model"}
         </div>
       );
@@ -149,7 +149,6 @@ export default function ModelPage({ params }: ModelPageProps) {
       return (
         <ColorDetector 
           result={result} 
-          isCamera={useCameraMode}
           colorInput={colorInput}
           onCameraFrame={handleCameraFrame}
         />
