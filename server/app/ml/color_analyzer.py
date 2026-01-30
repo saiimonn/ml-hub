@@ -5,17 +5,15 @@ from app.ml.base import BaseCVModel
 from sklearn.cluster import KMeans
 
 class ColorAnalyzingModel(BaseCVModel):
-    def __init__(self, n_colors=5):
+    def __init__(self, n_colors=10):
         self.n_colors = n_colors
     
     def load(self):
         pass
     
     def predict(self, image: np.ndarray) -> dict:
-        # Convert from BGR to RGB for proper color representation
         image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         
-        # Reshape image to be a list of pixels
         pixels = image_rgb.reshape(-1, 3)
         
         # Use KMeans to find dominant colors

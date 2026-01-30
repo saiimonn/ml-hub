@@ -6,11 +6,11 @@ const LandingPage = () => {
   const features = [
     {
       title: "Trainable Vision Models",
-      desc: "Create and train custom computer vision models using your own data for tasks like classification and detection."
+      desc: "Create and train custom computer vision models using your own data. (COMING SOON)"
     },
     {
       title: "Instant Image Analysis",
-      desc: "Use ready-made analytical models to inspect images, extract visual properties, and compute insights such as color distribution and dominance."
+      desc: "Use ready-made analytical models to inspect images, extract visual properties, and compute insights."
     },
     {
       title: "Real-Time AI Sessions",
@@ -53,7 +53,7 @@ const LandingPage = () => {
           <h1 className="text-5xl font-semibold">Welcome to the Playground</h1>
           <p className="text-xl max-w-xl text-center">
             Run computer vision models directly in your browser, and explore real-time detection, classification, and visual understanding 
-            <span className = "font-extrabold"> without any setup. </span>
+            <span className = "font-extrabold text-purple-600"> without any setup. </span>
           </p>
           
           <div>

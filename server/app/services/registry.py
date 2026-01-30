@@ -18,8 +18,8 @@ MODEL_METADATA = {
     "color-analyzer": {
         "id": "color-analyzer",
         "name": "Color Analyzer",
-        "description": "Detects and analyzes dominant colors in images using K-means clustering.",
-        "version": "1.2",
+        "description": "Detects and analyzes dominant colors in images using K-means clustering. Lists up to 10 colors maximum.",
+        "version": "1.3",
         "type": "CV/Analytics",
         "category": "analytical",
         "inputType": "image",

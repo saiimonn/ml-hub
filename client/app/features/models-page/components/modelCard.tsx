@@ -26,7 +26,7 @@ const ModelCard: React.FC<ModelCardProps> = ({ id, name, desc, version, type }) 
       </div>
       <div className="mt-4 flex items-center justify-between">
         <span className="text-sm text-gray-500 dark:text-gray-400">v{version}</span>
-          <Link href = {`/models/${id}`} className = "flex items-center justify-center px-4 py-2 text-sm font-semibold">
+          <Link href = {`/models/${id}`} className = "flex items-center justify-center px-4 py-2 text-sm font-semibold hover:text-purple-600 transition-colors">
             Try
           </Link>
       </div>
