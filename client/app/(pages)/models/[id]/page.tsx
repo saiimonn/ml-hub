@@ -19,6 +19,7 @@ export default function ModelPage({ params }: ModelPageProps) {
   const unwrappedParams = use(params);
   const modelId = unwrappedParams.id;
 
+  const [isMounted, setIsMounted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -29,19 +30,19 @@ export default function ModelPage({ params }: ModelPageProps) {
   const [colorInput, setColorInput] = useState("#f97316");
   const [useCameraMode, setUseCameraMode] = useState(false);
 
+  // Handle Hydration by ensuring client-only code runs after mount
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   useEffect(() => {
     const fetchModel = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/models/${modelId}`);
-        if (!res.ok) {
-          console.error(`Failed to fetch model: ${res.status} ${res.statusText}`);
-          throw new Error("Model not exist");
-        }
+        if (!res.ok) throw new Error("Model does not exist");
         const data = await res.json();
-        console.log("Fetched model:", data);
         setModel(data);
         
-        // Auto-enable camera mode for camera-output models
         if (data.outputType === "camera") {
           setUseCameraMode(true);
         }
@@ -112,24 +113,19 @@ export default function ModelPage({ params }: ModelPageProps) {
     }
   };
 
-  // Handle camera frame capture and inference
   const handleCameraFrame = useCallback(async (file: File) => {
     if (!model || loading) return;
-    
     try {
       const endpoint = `${API_BASE_URL}/models/${modelId}/infer`;
       const formData = new FormData();
       formData.append("file", file);
-      
       if (model.inputType === "color") {
         formData.append("data", colorInput);
       }
-      
       const response = await fetch(endpoint, {
         method: "POST",
         body: formData,
       });
-
       if (response.ok) {
         const data = await response.json();
         setResult(data.output ?? data);
@@ -142,7 +138,7 @@ export default function ModelPage({ params }: ModelPageProps) {
   const renderOutput = () => {
     if (!result && !useCameraMode) {
       return (
-        <div className="flex-1 border rounded-lg bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center text-neutral-400 min-h-100">
+        <div className="flex-1 border rounded-lg bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center text-neutral-400 min-h-[300px]">
           {loading ? "Processing..." : "Results will appear here after running the model"}
         </div>
       );
@@ -169,126 +165,133 @@ export default function ModelPage({ params }: ModelPageProps) {
     );
   };
 
-  if (loadingModel || !model) return <div className="p-8">Loading...</div>;
+  if (!isMounted || loadingModel || !model) {
+    return <div className="p-8 animate-pulse text-neutral-500">Loading component...</div>;
+  }
 
   return (
     <div className="max-w-5xl mx-auto p-8 min-h-screen">
       <header className="mb-10">
-        <div className="mb-2">
+        <div className="mb-4">
           <Link
             href="/models"
-            className="text-sm text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
+            className="text-sm font-medium hover:text-purple-600 transition-colors"
           >
             ← Back to Models
           </Link>
         </div>
         <div className="flex items-center gap-3 mb-3">
-          <span className="px-3 py-1 text-xs font-semibold rounded-full border">
+          <span className="px-3 py-1 text-xs font-extralight uppercase tracking-tighter rounded-full border ">
             {model.type}
           </span>
-          <span className="text-sm text-neutral-500">v{model.version}</span>
+          <span className="text-sm text-neutral-400 font-mono">v{model.version}</span>
           {model.outputType === "camera" && (
-            <span className="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700 border border-green-300">
+            <span className="px-3 py-1 text-xs rounded-full bg-green-500/10 text-green-500 border border-green-500/20">
               Live Camera
             </span>
           )}
         </div>
-
-        <h1 className="text-4xl font-black text-neutral-900 dark:text-white">
+        <h1 className="text-5xl font-black text-neutral-900 dark:text-white tracking-tight">
           {model.name}
         </h1>
-
-        <p className="mt-3 text-neutral-600 dark:text-neutral-400 max-w-2xl">
+        <p className="mt-4 text-lg text-neutral-600 dark:text-neutral-400 max-w-3xl leading-relaxed">
           {model.description}
         </p>
       </header>
 
       <section className="flex flex-col gap-8">
-        {/* Output Panel */}
-        <div className="border rounded-xl p-6 flex flex-col min-h-100">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Output</h2>
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-neutral-500 uppercase tracking-wide">
-                {useCameraMode ? "Live Camera" : "Live Preview"}
-              </span>
-            </div>
+        {/* Output Section */}
+        <div className="border rounded-2xl p-8 bg-white dark:bg-neutral-950 shadow-sm">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold">Inference Output</h2>
+            <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">
+              {useCameraMode ? "Stream active" : "Static Analysis"}
+            </span>
           </div>
-
           {renderOutput()}
         </div>
 
-        {/* Input Panel - Only show for non-camera mode */}
+        {/* Input & Control Section */}
         {!useCameraMode && (
-          <div className="border rounded-xl p-6">
-            <h2 className="text-lg font-semibold mb-4">Controls</h2>
+          <div className="flex flex-col gap-6">
+            <div className="border rounded-2xl p-8 bg-neutral-950 shadow-sm">
+              <h2 className="text-xl font-bold mb-6">Configure Input</h2>
 
-            {(model.inputType === "image") && (
-              <div className="space-y-4">
-                {previewUrl && (
-                  <div className="border rounded-lg overflow-hidden max-h-64">
-                    <Image
-                      src={previewUrl}
-                      alt="Selected image"
-                      width={800}
-                      height={600}
-                      unoptimized
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                )}
-
-                <label className="border-dashed border-2 rounded-lg p-6 text-center text-neutral-500 hover:border-neutral-400 cursor-pointer block transition">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    capture="user"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                  />
-                  {selectedFile ? (
-                    <span className="text-neutral-700 dark:text-neutral-300 font-medium">
-                      {selectedFile.name}
-                    </span>
-                  ) : (
-                    <span>Click to upload image or use webcam</span>
+              {model.inputType === "image" && (
+                <div className="space-y-6">
+                  {previewUrl && (
+                    <div className="relative w-full border rounded-xl overflow-hidden bg-neutral-900 flex items-center justify-center min-h-62.5 max-h-150">
+                      <Image
+                        src={previewUrl}
+                        alt="Preview"
+                        width={1200}
+                        height={900}
+                        unoptimized
+                        className="max-w-full max-h-150 w-auto h-auto object-contain"
+                      />
+                    </div>
                   )}
-                </label>
-              </div>
-            )}
 
-            {model.inputType === "text" && (
-              <textarea
-                value={textInput}
-                onChange={(e) => setTextInput(e.target.value)}
-                placeholder="Paste your text here..."
-                className="w-full min-h-30 border rounded-lg p-3 resize-none focus:outline-none focus:ring-2"
-              />
-            )}
+                  <label className="group border-dashed border-2 rounded-xl p-10 text-center text-neutral-400 hover:border-neutral-900 dark:hover:border-white hover:bg-neutral-50 dark:hover:bg-neutral-900 cursor-pointer block transition-all">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+                    <div className="flex flex-col items-center gap-3">
+                      <span className="text-sm font-semibold group-hover:text-neutral-900 dark:group-hover:text-white">
+                        {selectedFile ? selectedFile.name : "Select an image file to begin"}
+                      </span>
+                      <span className="text-[10px] uppercase tracking-widest opacity-50">Drag & Drop supported</span>
+                    </div>
+                  </label>
+                </div>
+              )}
 
-            {model.inputType === "color" && (
-              <div className="mt-4">
-                <ColorInput value={colorInput} onChange={setColorInput} />
-              </div>
-            )}
+              {/* text input */}
+              {model.inputType === "text" && (
+                <textarea
+                  value={textInput}
+                  onChange={(e) => setTextInput(e.target.value)}
+                  placeholder="Enter text payload..."
+                  className="w-full min-h-37.5 border rounded-xl p-5 bg-neutral-50 focus:ring-2 focus:ring-neutral-200 outline-none transition-all"
+                />
+              )}
 
-            <button
-              onClick={handleRunModel}
-              disabled={loading || ((model.inputType === "image" || model.inputType === "color") && !selectedFile)}
-              className="mt-6 px-6 py-2 font-semibold rounded-lg border hover:bg-neutral-100 dark:hover:bg-neutral-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "Processing..." : "Run Model"}
-            </button>
+              {/* color input */}
+              {model.inputType === "color" && (
+                <div className="p-6 border rounded-xl">
+                  <ColorInput value={colorInput} onChange={setColorInput} />
+                </div>
+              )}
+            </div>
+
+            {/* seperate run model and input */}
+            <div className="flex items-center justify-between border rounded-2xl p-5">
+              <span className="text-xs font-bold px-4">
+                {(!selectedFile && (model.inputType === "image" || model.inputType === "color")) 
+                  ? "Awaiting input file..." 
+                  : "Ready for inference"}
+              </span>
+              <button
+                onClick={handleRunModel}
+                disabled={loading || ((model.inputType === "image" || model.inputType === "color") && !selectedFile)}
+                className="px-10 py-3 font-black text-xs uppercase tracking-widest text-white bg-neutral-700 rounded-lg hover:bg-neutral-600 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+              >
+                {loading ? "Processing..." : "Run model"}
+              </button>
+            </div>
           </div>
         )}
 
-        {/* Camera mode controls */}
+        {/* Camera mode specific settings */}
         {useCameraMode && model.inputType === "color" && (
-          <div className="border rounded-xl p-6">
-            <h2 className="text-lg font-semibold mb-4">Color Settings</h2>
+          <div className="border rounded-2xl p-8 bg-white dark:bg-neutral-950">
+            <h2 className="text-xl font-bold mb-4">Real-time Parameters</h2>
             <ColorInput value={colorInput} onChange={setColorInput} />
-            <p className="text-xs text-neutral-500 mt-2">
-              The camera will continuously detect this color in real-time
+            <p className="text-xs text-neutral-500 mt-4 font-medium italic">
+              * The engine will continuously scan the video feed for the selected hue.
             </p>
           </div>
         )}

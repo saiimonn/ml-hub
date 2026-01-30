@@ -6,14 +6,14 @@ export default function ColorAnalyzer({ result }: { result: any }) {
     <>
       <div className = "flex-1 space-y-4">
         {result.preview && (
-          <div className = "border rounded-lg overflow-hidden">
+          <div className = "border rounded-lg overflow-hidden mb-4">
             <Image
               src={`data:image/png;base64,${result.preview}`}
               alt="Color distribution"
               width={800}
               height={600}
               unoptimized
-              className="w-full h-auto"
+              className="w-full h-16"
             />
           </div>
         )}
@@ -50,7 +50,7 @@ export default function ColorAnalyzer({ result }: { result: any }) {
       </div>
       
       {result.dominant_color && (
-        <div className = "border rounded-lg p-4 bg-neutral-50 dark:bg-neutral-900">
+        <div className = "border rounded-lg p-4 bg-neutral-50 dark:bg-neutral-900 mt-4">
           <p className = "text-xs text-neutral-500 mb-2">Dominant Color</p>
           <div className = "flex items-center gap-3">
             <div
