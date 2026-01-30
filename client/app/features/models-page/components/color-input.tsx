@@ -10,7 +10,7 @@ export default function ColorInput({ value, onChange }: ColorInputProps) {
     <div className = "space-y-4">
       <label className = "text-sm font-medium text-neutral-500 block">Select Color to Detect</label>
       
-      <div className = "flex items-center gap-4 p-3 border rounded-lg bg-white group hover:border-neutral-400 transition-colors cursor-pointer relative overflow-hidden">
+      <div className = "flex items-center gap-4 p-3 border rounded-lg group hover:border-neutral-400 transition-colors cursor-pointer relative overflow-hidden">
         <input 
           type="color"
           value={value}
@@ -23,7 +23,7 @@ export default function ColorInput({ value, onChange }: ColorInputProps) {
             
           <div className = "flex-1">
             <p className = "text-sm font-mono font-bold uppercase">{value}</p>
-            <p className = "text-[10px] text-neutral-400 uppercase tracking-widest font-semibold">Click to change</p>
+            <p className = "text-[10px] uppercase tracking-widest font-semibold">Click to change</p>
           </div>
           
           <svg

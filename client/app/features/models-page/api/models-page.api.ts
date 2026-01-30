@@ -3,7 +3,7 @@ import axios from "axios";
 import type { Model } from "../types/models-page.types";
 
 export const GetModels = async(): Promise<Model[]> => {
-  const res = await axios.get(`${API_BASE_URL}/models`);
+  const res = await axios.get(`${API_BASE_URL}/models/`);
   return res.data;
 }
 
